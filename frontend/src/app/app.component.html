@@ -1,0 +1,107 @@
+<div class="page-shell">
+  <header class="topbar">
+    <div class="brand-mark">+</div>
+    <div><h1>CarePoint <span>OPD</span></h1><p>Outpatient Department · Mini Module</p></div>
+    <div class="header-status"><span class="status-dot"></span> Clinic workspace</div>
+  </header>
+
+  <section class="welcome">
+    <div><p class="eyebrow">CLINIC MANAGEMENT</p><h2>Simple care, clearly organized.</h2><p>Register patients, manage appointments, and keep consultation summaries in one place.</p></div>
+    <div class="welcome-icon">✚</div>
+  </section>
+
+  <nav class="tabs" aria-label="Main navigation">
+    <button [class.active]="activeTab === 'patients'" (click)="setTab('patients')">01&nbsp; Patients</button>
+    <button [class.active]="activeTab === 'appointments'" (click)="setTab('appointments')">02&nbsp; Appointments</button>
+    <button [class.active]="activeTab === 'consultation'" (click)="setTab('consultation')">03&nbsp; Consultation</button>
+  </nav>
+
+  <div *ngIf="message" class="notice success" role="status">{{ message }}</div>
+  <div *ngIf="error" class="notice error" role="alert">{{ error }}</div>
+
+  <main>
+    <section *ngIf="activeTab === 'patients'" class="content-grid">
+      <article class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">NEW RECORD</p><h3>Register a patient</h3></div><span class="step-icon">＋</span></div>
+        <p class="muted">Enter the patient's basic information.</p>
+        <form (ngSubmit)="submitPatient()">
+          <label>Full name<input name="name" [(ngModel)]="patientForm.name" placeholder="e.g. Aarya Patel" required maxlength="100"></label>
+          <div class="two-cols">
+            <label>Gender<select name="gender" [(ngModel)]="patientForm.gender"><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select></label>
+            <label>Age<input name="age" type="number" [(ngModel)]="patientForm.age" min="0" max="120" required></label>
+          </div>
+          <label>Phone number<input name="phone" [(ngModel)]="patientForm.phone" placeholder="e.g. 9876543210" required minlength="7" maxlength="20"></label>
+          <button class="primary-button" type="submit" [disabled]="loading">{{ loading ? 'Saving…' : 'Register patient →' }}</button>
+        </form>
+      </article>
+      <article class="panel list-panel">
+        <div class="panel-heading"><div><p class="eyebrow">PATIENT DIRECTORY</p><h3>Registered patients</h3></div><span class="count">{{ patients.length }}</span></div>
+        <div class="search-row"><input aria-label="Search patients" [(ngModel)]="search" (keyup.enter)="loadPatients()" placeholder="Search name or phone"><button class="secondary-button" (click)="loadPatients()">Search</button></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Patient</th><th>Age / Gender</th><th>Phone</th></tr></thead>
+            <tbody><tr *ngFor="let p of patients"><td><div class="person"><span class="avatar">{{ p.name.charAt(0).toUpperCase() }}</span><span><strong>{{ p.name }}</strong><small>ID #{{ p.id }}</small></span></div></td><td>{{ p.age }} / {{ p.gender }}</td><td>{{ p.phone }}</td></tr>
+            <tr *ngIf="patients.length === 0"><td colspan="3" class="empty">No patients yet. Register the first patient.</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section *ngIf="activeTab === 'appointments'" class="content-grid">
+      <article class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">SCHEDULE A VISIT</p><h3>Book appointment</h3></div><span class="step-icon">◷</span></div>
+        <p class="muted">Choose a registered patient and the visit time.</p>
+        <form (ngSubmit)="bookAppointment()">
+          <label>Patient<select name="patientId" [(ngModel)]="appointmentForm.patientId" required><option value="">Select patient</option><option *ngFor="let p of patients" [value]="p.id">{{ p.name }} · #{{ p.id }}</option></select></label>
+          <label>Doctor name<input name="doctorName" [(ngModel)]="appointmentForm.doctorName" placeholder="e.g. Dr. Mehta" required></label>
+          <label>Appointment date & time<input name="appointmentDateTime" type="datetime-local" [(ngModel)]="appointmentForm.appointmentDateTime" required></label>
+          <button class="primary-button" type="submit" [disabled]="loading">Book appointment →</button>
+        </form>
+      </article>
+      <article class="panel list-panel">
+        <div class="panel-heading"><div><p class="eyebrow">TODAY'S SCHEDULE</p><h3>Today's appointments</h3></div><span class="count">{{ todayAppointments.length }}</span></div>
+        <div class="appointment-list">
+          <div class="appointment-item" *ngFor="let a of todayAppointments">
+            <div class="date-tile"><strong>{{ a.appointmentDateTime | date:'dd' }}</strong><small>{{ a.appointmentDateTime | date:'MMM' }}</small></div>
+            <div class="appointment-info"><strong>{{ a.patient.name }}</strong><span>{{ a.doctorName }} · {{ a.appointmentDateTime | date:'shortTime' }}</span></div>
+            <span class="pill" [class.done]="a.status === 'COMPLETED'">{{ a.status === 'COMPLETED' ? 'Completed' : 'Booked' }}</span>
+          </div>
+          <p *ngIf="todayAppointments.length === 0" class="empty">No appointments scheduled for today.</p>
+        </div>
+        <h4 class="subheading">All appointments</h4>
+        <div class="compact-list"><div *ngFor="let a of appointments"><span><strong>{{ a.patient.name }}</strong><small>{{ a.doctorName }} · {{ a.appointmentDateTime | date:'medium' }}</small></span><span class="pill" [class.done]="a.status === 'COMPLETED'">{{ a.status }}</span></div></div>
+      </article>
+    </section>
+
+    <section *ngIf="activeTab === 'consultation'" class="content-grid">
+      <article class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">DOCTOR WORKSPACE</p><h3>Consultation summary</h3></div><span class="step-icon">✓</span></div>
+        <p class="muted">Select a booked appointment, record two vitals, and complete the visit.</p>
+        <form (ngSubmit)="completeConsultation()">
+          <label>Booked appointment<select name="appointmentId" [(ngModel)]="selectedAppointmentId" required><option value="">Select appointment</option><option *ngFor="let a of bookableAppointments" [value]="a.id">#{{ a.id }} · {{ a.patient.name }} · {{ a.appointmentDateTime | date:'short' }} · {{ a.doctorName }}</option></select></label>
+          <div class="two-cols">
+            <label>Blood pressure<input name="bp" [(ngModel)]="consultationForm.bloodPressure" placeholder="e.g. 120/80 mmHg" required></label>
+            <label>Temperature<input name="temperature" [(ngModel)]="consultationForm.temperature" placeholder="e.g. 36.8 °C" required></label>
+          </div>
+          <label>Consultation notes<textarea name="notes" [(ngModel)]="consultationForm.notes" rows="5" maxlength="2000" placeholder="Short summary of the consultation…"></textarea></label>
+          <button class="primary-button" type="submit" [disabled]="loading">Save & mark complete ✓</button>
+        </form>
+      </article>
+      <article class="panel list-panel">
+        <div class="panel-heading"><div><p class="eyebrow">PATIENT RECORD</p><h3>Consultation history</h3></div><span class="step-icon">▤</span></div>
+        <p class="muted">View completed consultations for a patient.</p>
+        <div class="search-row"><select aria-label="Patient for history" [(ngModel)]="historyPatientId"><option value="">Choose patient</option><option *ngFor="let p of patients" [value]="p.id">{{ p.name }} · #{{ p.id }}</option></select><button class="secondary-button" (click)="loadHistory()">View</button></div>
+        <div class="history-list">
+          <article class="history-card" *ngFor="let c of history">
+            <div class="history-top"><strong>{{ c.appointment.patient.name }}</strong><small>{{ c.completedAt | date:'medium' }}</small></div>
+            <p><b>Doctor:</b> {{ c.appointment.doctorName }}</p>
+            <div class="vitals"><span>BP <b>{{ c.bloodPressure }}</b></span><span>Temp <b>{{ c.temperature }}</b></span></div>
+            <p class="notes">{{ c.notes || 'No notes added.' }}</p>
+          </article>
+          <p *ngIf="historyPatientId && history.length === 0" class="empty">No completed consultations found for this patient.</p>
+          <p *ngIf="!historyPatientId" class="empty">Select a patient to see their completed visits.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+  <footer><span>CarePoint OPD</span><span>Educational demo · Do not enter real patient data</span></footer>
+</div>
