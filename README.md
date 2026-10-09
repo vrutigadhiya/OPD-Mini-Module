@@ -3,7 +3,8 @@
 A beginner-friendly full-stack project based on the uploaded assignment:
 - Patient registration, listing, and search by name/phone
 - Appointment booking and today's appointment list
-- Consultation notes, two vital fields, completion status, and patient consultation history
+- Consultation notes, two vital fields (blood pressure and temperature), completion status, and patient consultation history
+- Sample reports: registered patients, today’s appointments, booked appointments, and completed consultations
 
 ## Tech stack
 - Backend: Java 17, Spring Boot 3.3.5, Spring Web, Spring Data JPA, Bean Validation
@@ -56,9 +57,12 @@ Open `http://localhost:4200`.
 
 ## 5. Test the full flow
 1. Add a patient from **Patients**.
-2. Go to **Appointments**, choose a patient, doctor, date/time, and book.
-3. Open **Consultation**, select an appointment, enter blood pressure and temperature (the assignment asks for any two vitals), add notes, and mark it complete.
-4. Search a patient in **Consultation history** to view completed consultations.
+2. Search by patient name or phone number in the patient directory.
+3. Go to **Appointments**, choose a patient, doctor, date/time, and book.
+4. Confirm the appointment appears in **Today’s appointments** when its date is today.
+5. Open **Consultation**, select a booked appointment, enter blood pressure and temperature (two vital fields), add short notes, and mark it complete.
+6. Select the patient in **Consultation history** to view completed consultations.
+7. Open **Reports** to see live sample counts for patients and appointment statuses.
 
 ## API overview
 | Method | Endpoint | Purpose |
@@ -86,8 +90,9 @@ Open `http://localhost:4200`.
 Typical request:
 `Patient form → PatientApiService → POST /api/patients → PatientController → PatientService → PatientRepository → MySQL`.
 
-## Important scope notes
-- This is an educational demo, not a production clinical system.
-- Authentication, role-based access, audit logging, encryption, backups, and clinical safety review are not implemented.
+## Scope notes
+- The required patient, appointment, and consultation flows are included, along with an optional sample reports screen.
+- Basic login was optional in the assignment and is not implemented in this version; there is no authentication or role-based access control.
+- This is an educational demo, not a production clinical system. Audit logging, encryption, backups, and clinical safety review are not implemented.
 - Do not enter real patient/medical data.
 - Appointment date/time is stored as a local date-time for a simple local demo. A production app should define its timezone policy.

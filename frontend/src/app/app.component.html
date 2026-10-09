@@ -14,6 +14,7 @@
     <button [class.active]="activeTab === 'patients'" (click)="setTab('patients')">01&nbsp; Patients</button>
     <button [class.active]="activeTab === 'appointments'" (click)="setTab('appointments')">02&nbsp; Appointments</button>
     <button [class.active]="activeTab === 'consultation'" (click)="setTab('consultation')">03&nbsp; Consultation</button>
+    <button [class.active]="activeTab === 'reports'" (click)="setTab('reports')">04&nbsp; Reports</button>
   </nav>
 
   <div *ngIf="message" class="notice success" role="status">{{ message }}</div>
@@ -101,6 +102,17 @@
           <p *ngIf="!historyPatientId" class="empty">Select a patient to see their completed visits.</p>
         </div>
       </article>
+    </section>
+    <section *ngIf="activeTab === 'reports'" class="reports-section">
+      <div class="panel-heading"><div><p class="eyebrow">QUICK OVERVIEW</p><h3>Sample OPD reports</h3></div><span class="step-icon">▥</span></div>
+      <p class="muted">A simple live summary based on the records currently stored in the database.</p>
+      <div class="report-grid">
+        <article class="report-card"><span class="report-label">Registered patients</span><strong>{{ patients.length }}</strong><small>All patient records</small></article>
+        <article class="report-card"><span class="report-label">Appointments today</span><strong>{{ todayAppointments.length }}</strong><small>Scheduled for today's date</small></article>
+        <article class="report-card"><span class="report-label">Booked appointments</span><strong>{{ bookedAppointmentsCount }}</strong><small>Awaiting consultation</small></article>
+        <article class="report-card"><span class="report-label">Completed consultations</span><strong>{{ completedAppointmentsCount }}</strong><small>Appointments marked complete</small></article>
+      </div>
+      <div class="panel report-note"><h4>Report notes</h4><p>These are sample operational counts for assignment demonstration. They are calculated from the patient and appointment lists loaded from the backend; no separate report table is needed.</p></div>
     </section>
   </main>
   <footer><span>CarePoint OPD</span><span>Educational demo · Do not enter real patient data</span></footer>

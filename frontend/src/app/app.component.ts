@@ -13,7 +13,7 @@ import { Appointment, Consultation, Patient } from './models';
 })
 export class AppComponent implements OnInit {
   private api = inject(OpdApiService);
-  activeTab: 'patients' | 'appointments' | 'consultation' = 'patients';
+  activeTab: 'patients' | 'appointments' | 'consultation' | 'reports' = 'patients';
   patients: Patient[] = [];
   appointments: Appointment[] = [];
   todayAppointments: Appointment[] = [];
@@ -34,12 +34,12 @@ export class AppComponent implements OnInit {
     this.loadAppointments();
   }
 
-  setTab(tab: 'patients' | 'appointments' | 'consultation'): void {
+  setTab(tab: 'patients' | 'appointments' | 'consultation' | 'reports'): void {
     this.activeTab = tab;
     this.clearMessages();
     if (tab === 'patients') this.loadPatients();
     if (tab === 'appointments') this.loadAppointments();
-    if (tab === 'consultation') this.loadAppointments();
+    if (tab === 'consultation' || tab === 'reports') { this.loadAppointments(); this.loadPatients(); }
   }
 
   clearMessages(): void { this.message = ''; this.error = ''; }
@@ -120,5 +120,7 @@ export class AppComponent implements OnInit {
     });
   }
   get bookableAppointments(): Appointment[] { return this.appointments.filter(a => a.status === 'BOOKED'); }
+  get completedAppointmentsCount(): number { return this.appointments.filter(a => a.status === 'COMPLETED').length; }
+  get bookedAppointmentsCount(): number { return this.appointments.filter(a => a.status === 'BOOKED').length; }
   patientName(id: number): string { return this.patients.find(p => p.id === id)?.name || `Patient #${id}`; }
 }

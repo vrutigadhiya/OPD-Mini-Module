@@ -18,3 +18,5 @@ START HERE
 
 Read README.md for the API list, flow explanation, and interview/demo talking points.
 This is a learning/demo project, not a production medical record system.
+
+Optional sample reports screen: open the Reports tab to see total patients, appointments today, booked appointments, and completed consultations. Basic login was optional and is not included in this demo.
